@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import type { Response } from 'express'
-import { RegisterDto } from './auth.dto'
+import { LoginDto, RegisterDto } from './auth.dto'
 import { AuthService } from './auth.service'
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard'
 import { JwtAuthGuard } from './guards/jwt.guard'
@@ -21,7 +21,6 @@ import type {
   AuthRefreshResponse,
   AuthRegisterResponse,
   JwtAccessPayload,
-  SafeUser,
 } from './types'
 
 @Controller('auth')
@@ -33,10 +32,7 @@ export class AuthController {
     @Body() dto: RegisterDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthRegisterResponse> {
-    const { user, accessToken, refreshToken } = await this.auth.register(
-      dto.email,
-      dto.password,
-    )
+    const { user, accessToken, refreshToken } = await this.auth.register(dto)
     this.setRefreshCookie(res, refreshToken)
     return { user, accessToken }
   }
@@ -44,12 +40,12 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(
-    @Req() req: AuthenticatedRequest<SafeUser>,
+    @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthLoginResponse> {
-    const { accessToken, refreshToken } = await this.auth.login(req.user)
+    const { accessToken, refreshToken, user } = await this.auth.login(dto)
     this.setRefreshCookie(res, refreshToken)
-    return { accessToken, user: req.user }
+    return { accessToken, user }
   }
 
   @UseGuards(JwtRefreshGuard)

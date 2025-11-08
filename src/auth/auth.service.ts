@@ -1,9 +1,14 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import * as argon2 from 'argon2'
 import { UsersService } from '../users/users.service'
-import { SafeUser, Tokens } from './types'
+import { LoginDto, RegisterDto } from './auth.dto'
+import { Role, SafeUser, Tokens } from './types'
 
 @Injectable()
 export class AuthService {
@@ -13,15 +18,17 @@ export class AuthService {
     private cfg: ConfigService,
   ) {}
 
-  async register(
-    email: string,
-    password: string,
-  ): Promise<{ user: SafeUser } & Tokens> {
-    const hash = await argon2.hash(password)
-    const user = await this.users.create({ email, hash })
-    const tokens = await this.signTokens(user.id, user.email, 'USER')
-    await this.setRefreshToken(user.id, tokens.refreshToken)
-    return { user: { id: user.id, email: user.email, role: 'USER' }, ...tokens }
+  async register(dto: RegisterDto): Promise<{ user: SafeUser } & Tokens> {
+    const hash = await argon2.hash(dto.password)
+    const user = await this.users.create({
+      email: dto.email,
+      hash,
+      name: dto.name,
+    })
+    return {
+      user: user as SafeUser,
+      ...(await this.signTokens(user.id, user.email, user.role as Role)),
+    }
   }
 
   async validateUser(
@@ -31,17 +38,16 @@ export class AuthService {
     const user = await this.users.findByEmail(email)
     if (!user) return null
     const ok = await argon2.verify(user.hash, password)
-    return ok ? { id: user.id, email: user.email, role: user.role } : null
+    return ok ? (user as SafeUser) : null
   }
 
-  async login(user: {
-    id: string
-    email: string
-    role: string
-  }): Promise<Tokens> {
-    const tokens = await this.signTokens(user.id, user.email, user.role)
-    await this.setRefreshToken(user.id, tokens.refreshToken)
-    return tokens
+  async login(dto: LoginDto): Promise<{ user: SafeUser } & Tokens> {
+    const user = await this.validateUser(dto.email, dto.password)
+    if (!user) throw new UnauthorizedException('Invalid credentials')
+    return {
+      user: user,
+      ...(await this.signTokens(user.id, user.email, user.role)),
+    }
   }
 
   async refresh(userId: string, refreshToken: string): Promise<Tokens> {

@@ -15,6 +15,13 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     const user = await this.authService.validateUser(email, password)
     if (!user) throw new UnauthorizedException('Invalid credentials')
     // Ensure we only return a SafeUser shape without the password
-    return { id: user.id, email: user.email, role: user.role }
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name || '',
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }
   }
 }

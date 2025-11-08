@@ -26,6 +26,9 @@ export interface SafeUser {
   id: string
   email: string
   role: Role
+  name: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 export type AuthenticatedRequest<TUser> = Request & { user: TUser }

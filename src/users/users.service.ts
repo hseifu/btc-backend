@@ -10,8 +10,18 @@ export class UsersService {
     return await this.prisma.user.findUnique({ where: { email } })
   }
 
-  async create(data: { email: string; hash: string }): Promise<User> {
-    return await this.prisma.user.create({ data })
+  async create(data: {
+    email: string
+    hash: string
+    name: string
+  }): Promise<User> {
+    return await this.prisma.user.create({
+      data: {
+        email: data.email,
+        hash: data.hash,
+        name: data.name,
+      },
+    })
   }
 
   async updateRefreshToken(
