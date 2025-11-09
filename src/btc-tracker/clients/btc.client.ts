@@ -90,7 +90,6 @@ export class BtcClient {
           },
         },
       )
-      console.log('response', response.data)
 
       const btcData = response.data.data.BTC
       const price = btcData.quote.USD.price
