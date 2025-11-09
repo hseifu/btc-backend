@@ -80,7 +80,7 @@ export class ScoresService {
     })
   }
 
-  async incrementWin(userId: string, pointsToAdd: number = 10) {
+  async incrementWin(userId: string, pointsToAdd: number = 1) {
     let score = await this.prisma.score.findUnique({
       where: { userId },
     })
@@ -98,7 +98,7 @@ export class ScoresService {
     })
   }
 
-  async incrementLoss(userId: string, pointsToDeduct: number = 5) {
+  async incrementLoss(userId: string, pointsToDeduct: number = 1) {
     let score = await this.prisma.score.findUnique({
       where: { userId },
     })

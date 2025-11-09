@@ -5,8 +5,6 @@ import { PrismaService } from '../prisma/prisma.service'
 import { ScoresService } from '../scores/scores.service'
 import { CreateGuessDto } from './dto/create-guess.dto'
 
-const GUESS_VALIDATION_DELAY = 60000 // 60 seconds = 1 minute
-
 @Injectable()
 export class GuessesService {
   constructor(
@@ -38,16 +36,7 @@ export class GuessesService {
       },
     })
 
-    // Schedule validation after GUESS_VALIDATION_DELAY
-    setTimeout(() => {
-      this.validateGuess(guess.id)
-        .catch((error) => {
-          console.error(`Failed to validate guess ${guess.id}:`, error)
-        })
-        .finally(() => {
-          console.log('Validation completed')
-        })
-    }, GUESS_VALIDATION_DELAY)
+    // Validation will be handled by the GuessValidationCron service
 
     return guess
   }

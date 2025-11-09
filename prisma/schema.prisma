@@ -46,16 +46,16 @@ model User {
 }
 
 model Guess {
-  id               String        @id @default(cuid())
-  userId           String
-  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  direction        GuessDirection
-  status           GuessStatus   @default(PENDING)
-  initialPrice     Float
-  finalPrice       Float?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  validatedAt      DateTime?
+  id           String         @id @default(cuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  direction    GuessDirection
+  status       GuessStatus    @default(PENDING)
+  initialPrice Float
+  finalPrice   Float?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  validatedAt  DateTime?
 
   @@index([userId])
   @@index([status])
