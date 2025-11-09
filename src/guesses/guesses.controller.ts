@@ -26,11 +26,6 @@ export class GuessesController {
     return this.guessesService.create(req.user.id, createGuessDto)
   }
 
-  @Get()
-  findAll() {
-    return this.guessesService.findAll()
-  }
-
   @Get('me')
   findMyGuesses(@Req() req: AuthenticatedRequest<JwtAccessPayload>) {
     return this.guessesService.findByUserId(req.user.id)
@@ -42,13 +37,19 @@ export class GuessesController {
   }
 
   @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.guessesService.findById(id)
+  findById(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest<JwtAccessPayload>,
+  ) {
+    return this.guessesService.findById(id, req.user.id)
   }
 
   @Post(':id/validate')
-  validateGuess(@Param('id') id: string) {
-    return this.guessesService.validateGuess(id)
+  validateGuess(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest<JwtAccessPayload>,
+  ) {
+    return this.guessesService.validateGuess(id, req.user.id)
   }
 
   @Delete(':id')

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -87,7 +88,7 @@ export class GuessesService {
     })
   }
 
-  async findById(id: string) {
+  async findById(id: string, userId?: string) {
     const guess = await this.prisma.guess.findUnique({
       where: { id },
       include: {
@@ -100,6 +101,11 @@ export class GuessesService {
         },
       },
     })
+    if (userId && guess?.userId !== userId) {
+      throw new ForbiddenException(
+        'You are not authorized to access this guess',
+      )
+    }
 
     if (!guess) {
       throw new NotFoundException(`Guess with id ${id} not found`)
@@ -108,8 +114,14 @@ export class GuessesService {
     return guess
   }
 
-  async validateGuess(guessId: string): Promise<Guess> {
+  async validateGuess(guessId: string, userId?: string): Promise<Guess> {
     const guess = await this.findById(guessId)
+
+    if (userId && guess?.userId !== userId) {
+      throw new ForbiddenException(
+        'You are not authorized to validate this guess',
+      )
+    }
 
     if (guess.status !== GuessStatus.PENDING) {
       return guess

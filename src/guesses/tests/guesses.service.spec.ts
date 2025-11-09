@@ -1,4 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { GuessStatus } from 'generated/prisma/client'
 import { BtcTrackerService } from '../../btc-tracker/btc-tracker.service'
@@ -190,6 +194,19 @@ describe('GuessesService', () => {
 
   describe('validateGuess', () => {
     const guessId = 'guess-123'
+
+    it('should throw ForbiddenException when user is not authorized to access the guess', async () => {
+      jest
+        .spyOn(prismaService.guess, 'findUnique')
+        .mockResolvedValue(mockGuess as any)
+
+      await expect(service.validateGuess(guessId, 'user-456')).rejects.toThrow(
+        ForbiddenException,
+      )
+      await expect(service.validateGuess(guessId, 'user-456')).rejects.toThrow(
+        'You are not authorized to validate this guess',
+      )
+    })
 
     it('should validate a winning UP guess correctly', async () => {
       const initialPrice = 50000
@@ -441,6 +458,19 @@ describe('GuessesService', () => {
       expect(result).toEqual(mockGuess)
     })
 
+    it('should throw ForbiddenException when user is not authorized to access the guess', async () => {
+      jest
+        .spyOn(prismaService.guess, 'findUnique')
+        .mockResolvedValue(mockGuess as any)
+
+      await expect(service.findById(guessId, 'user-456')).rejects.toThrow(
+        ForbiddenException,
+      )
+      await expect(service.findById(guessId, 'user-456')).rejects.toThrow(
+        'You are not authorized to access this guess',
+      )
+    })
+
     it('should throw NotFoundException when guess not found', async () => {
       jest.spyOn(prismaService.guess, 'findUnique').mockResolvedValue(null)
 
@@ -480,36 +510,6 @@ describe('GuessesService', () => {
       const result = await service.findByUserId(userId)
 
       expect(result).toEqual([])
-    })
-  })
-
-  describe('findAll', () => {
-    it('should return all guesses with user data', async () => {
-      const mockGuesses = [
-        { ...mockGuess, id: 'guess-1' },
-        { ...mockGuess, id: 'guess-2' },
-      ]
-      jest
-        .spyOn(prismaService.guess, 'findMany')
-        .mockResolvedValue(mockGuesses as any)
-
-      const result = await service.findAll()
-
-      expect(prismaService.guess.findMany).toHaveBeenCalledWith({
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      })
-      expect(result).toEqual(mockGuesses)
     })
   })
 
