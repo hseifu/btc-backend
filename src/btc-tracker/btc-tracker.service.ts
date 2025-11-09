@@ -11,4 +11,9 @@ export class BtcTrackerService {
       await this.btcClient.getLatestBtcPrice()
     return { price, priceChangeLast24h, timestamp }
   }
+
+  async getCurrentPrice(): Promise<number> {
+    const { price } = await this.btcClient.getLatestBtcPrice()
+    return price
+  }
 }

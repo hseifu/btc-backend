@@ -19,6 +19,17 @@ enum Role {
   ADMIN
 }
 
+enum GuessDirection {
+  UP
+  DOWN
+}
+
+enum GuessStatus {
+  PENDING
+  WON
+  LOST
+}
+
 model User {
   id               String   @id @default(cuid())
   email            String   @unique
@@ -29,4 +40,37 @@ model User {
   updatedAt        DateTime @updatedAt
 
   name String?
+
+  guesses Guess[]
+  score   Score?
+}
+
+model Guess {
+  id               String        @id @default(cuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  direction        GuessDirection
+  status           GuessStatus   @default(PENDING)
+  initialPrice     Float
+  finalPrice       Float?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  validatedAt      DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Score {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points    Int      @default(0)
+  wins      Int      @default(0)
+  losses    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([points])
 }

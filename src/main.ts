@@ -9,7 +9,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   const logger = new Logger('Bootstrap')
   app.use(helmet())
-  app.enableCors({ origin: ['http://localhost:3000'], credentials: true })
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
   app.use(cookieParser())
 
   const configService = app.get(ConfigService)

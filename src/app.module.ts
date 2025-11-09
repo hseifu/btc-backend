@@ -3,7 +3,9 @@ import { ConfigModule } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
 import { AuthModule } from './auth/auth.module'
 import { BtcTrackerModule } from './btc-tracker/btc-tracker.module'
+import { GuessesModule } from './guesses/guesses.module'
 import { PrismaModule } from './prisma/prisma.module'
+import { ScoresModule } from './scores/scores.module'
 import { UsersModule } from './users/users.module'
 
 @Module({
@@ -13,6 +15,8 @@ import { UsersModule } from './users/users.module'
     AuthModule,
     PrismaModule,
     BtcTrackerModule,
+    GuessesModule,
+    ScoresModule,
   ],
   providers: [
     {

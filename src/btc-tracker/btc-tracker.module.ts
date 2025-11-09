@@ -6,5 +6,6 @@ import { BtcClient } from './clients/btc.client'
 @Module({
   providers: [BtcTrackerService, BtcClient],
   controllers: [BtcTrackerController],
+  exports: [BtcTrackerService],
 })
 export class BtcTrackerModule {}
