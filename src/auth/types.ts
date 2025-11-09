@@ -3,7 +3,7 @@ import { Request } from 'express'
 export type Role = 'USER' | 'ADMIN'
 
 export interface JwtAccessPayload {
-  sub: string
+  id: string
   email: string
   role: Role
   iat?: number
@@ -11,7 +11,7 @@ export interface JwtAccessPayload {
 }
 
 export interface JwtRefreshPayload {
-  sub: string
+  id: string
   email: string
   iat?: number
   exp?: number

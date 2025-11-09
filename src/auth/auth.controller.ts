@@ -55,7 +55,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthRefreshResponse> {
     const { accessToken, refreshToken } = await this.auth.refresh(
-      req.user.sub,
+      req.user.id,
       req.user.refreshToken,
     )
     this.setRefreshCookie(res, refreshToken)
@@ -68,7 +68,7 @@ export class AuthController {
     @Req() req: AuthenticatedRequest<JwtAccessPayload>,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthLogoutResponse> {
-    await this.auth.logout(req.user.sub)
+    await this.auth.logout(req.user.id)
     res.clearCookie('refresh_token')
     return { status: 'ok' }
   }

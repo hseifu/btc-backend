@@ -23,7 +23,7 @@ export class GuessesController {
     @Req() req: AuthenticatedRequest<JwtAccessPayload>,
     @Body() createGuessDto: CreateGuessDto,
   ) {
-    return this.guessesService.create(req.user.sub, createGuessDto)
+    return this.guessesService.create(req.user.id, createGuessDto)
   }
 
   @Get()
@@ -33,7 +33,7 @@ export class GuessesController {
 
   @Get('me')
   findMyGuesses(@Req() req: AuthenticatedRequest<JwtAccessPayload>) {
-    return this.guessesService.findByUserId(req.user.sub)
+    return this.guessesService.findByUserId(req.user.id)
   }
 
   @Get('pending')

@@ -70,20 +70,20 @@ export class AuthService {
   }
 
   private async signTokens(
-    sub: string,
+    id: string,
     email: string,
     role: string,
   ): Promise<Tokens> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwt.signAsync(
-        { sub, email, role },
+        { id, email, role },
         {
           secret: this.cfg.get('JWT_ACCESS_SECRET'),
           expiresIn: this.cfg.get('JWT_ACCESS_TTL') || '15m',
         },
       ),
       this.jwt.signAsync(
-        { sub, email },
+        { id, email },
         {
           secret: this.cfg.get('JWT_REFRESH_SECRET'),
           expiresIn: this.cfg.get('JWT_REFRESH_TTL') || '7d',
