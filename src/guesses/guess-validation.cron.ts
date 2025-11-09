@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { GuessStatus } from 'generated/prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
+import { GuessesGateway } from './guesses.gateway'
 import { GuessesService } from './guesses.service'
 
 @Injectable()
@@ -11,6 +12,7 @@ export class GuessValidationCron {
   constructor(
     private readonly prisma: PrismaService,
     private readonly guessesService: GuessesService,
+    private readonly guessesGateway: GuessesGateway,
   ) {}
 
   // Run every second
@@ -40,8 +42,13 @@ export class GuessValidationCron {
 
       for (const guess of pendingGuesses) {
         try {
-          await this.guessesService.validateGuess(guess.id)
+          const validatedGuess = await this.guessesService.validateGuess(
+            guess.id,
+          )
           this.logger.log(`Successfully validated guess ${guess.id}`)
+
+          // Emit WebSocket event to subscribers
+          this.guessesGateway.emitGuessValidated(guess.id, validatedGuess)
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : 'Unknown error'

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import { GuessStatus } from 'generated/prisma/client'
+import { Guess, GuessStatus } from 'generated/prisma/client'
 import { BtcTrackerService } from '../btc-tracker/btc-tracker.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { ScoresService } from '../scores/scores.service'
@@ -88,7 +88,7 @@ export class GuessesService {
     return guess
   }
 
-  async validateGuess(guessId: string) {
+  async validateGuess(guessId: string): Promise<Guess> {
     const guess = await this.findById(guessId)
 
     if (guess.status !== GuessStatus.PENDING) {
