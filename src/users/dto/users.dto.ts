@@ -6,7 +6,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator'
-import type { Role } from '../auth/types'
+import type { Role } from '../../auth/types'
 
 export class CreateUserDto {
   @IsEmail()
