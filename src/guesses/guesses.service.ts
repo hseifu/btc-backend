@@ -12,11 +12,12 @@ import { CreateGuessDto } from './dto/create-guess.dto'
 
 @Injectable()
 export class GuessesService {
+  private readonly logger = new Logger(GuessesService.name)
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly btcTrackerService: BtcTrackerService,
     private readonly scoresService: ScoresService,
-    private readonly logger = new Logger(GuessesService.name),
   ) {}
 
   async create(userId: string, createGuessDto: CreateGuessDto) {
