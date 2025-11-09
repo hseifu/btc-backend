@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { BtcTrackerController } from './btc-tracker.controller'
+import { BtcTrackerController } from '../btc-tracker.controller'
 
 describe('BtcTrackerController', () => {
   let controller: BtcTrackerController

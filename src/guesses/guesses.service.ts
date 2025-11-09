@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { Guess, GuessStatus } from 'generated/prisma/client'
 import { BtcTrackerService } from '../btc-tracker/btc-tracker.service'
 import { PrismaService } from '../prisma/prisma.service'
@@ -11,10 +16,24 @@ export class GuessesService {
     private readonly prisma: PrismaService,
     private readonly btcTrackerService: BtcTrackerService,
     private readonly scoresService: ScoresService,
+    private readonly logger = new Logger(GuessesService.name),
   ) {}
 
   async create(userId: string, createGuessDto: CreateGuessDto) {
-    console.log('createGuessDto', userId, createGuessDto)
+    const existingGuess = await this.prisma.guess.findFirst({
+      where: {
+        status: GuessStatus.PENDING,
+        userId,
+      },
+    })
+
+    if (existingGuess) {
+      this.logger.warn(`User ${userId} already has a pending guess`)
+      throw new BadRequestException(
+        'You can only have one pending guess at a time',
+      )
+    }
+
     // Get current BTC price
     const currentPrice = await this.btcTrackerService.getCurrentPrice()
 
