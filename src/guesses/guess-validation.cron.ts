@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
+import { Semaphore } from 'async-mutex'
 import { GuessStatus } from 'generated/prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { GuessesGateway } from './guesses.gateway'
@@ -8,6 +9,7 @@ import { GuessesService } from './guesses.service'
 @Injectable()
 export class GuessValidationCron {
   private readonly logger = new Logger(GuessValidationCron.name)
+  private readonly semaphore = new Semaphore(1)
 
   constructor(
     private readonly prisma: PrismaService,
@@ -18,6 +20,7 @@ export class GuessValidationCron {
   // Run every second
   @Cron(CronExpression.EVERY_SECOND)
   async validatePendingGuesses() {
+    await this.semaphore.acquire()
     const now = new Date()
     const oneMinuteAgo = new Date(now.getTime() - 60 * 1000)
 
@@ -60,5 +63,6 @@ export class GuessValidationCron {
         }
       }
     }
+    this.semaphore.release()
   }
 }
