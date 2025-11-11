@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { Semaphore } from 'async-mutex'
 import { GuessStatus } from 'generated/prisma/client'
+import moment from 'moment'
 import { PrismaService } from '../prisma/prisma.service'
 import { GuessesGateway } from './guesses.gateway'
 import { GuessesService } from './guesses.service'
@@ -21,15 +22,15 @@ export class GuessValidationCron {
   @Cron(CronExpression.EVERY_SECOND)
   async validatePendingGuesses() {
     await this.semaphore.acquire()
-    const now = new Date()
-    const oneMinuteAgo = new Date(now.getTime() - 60 * 1000)
+    // Make sure this is a UTC date)
+    const oneMinuteAgo = moment.utc().subtract(1, 'minute')
 
     // Find all pending guesses that are older than 1 minute just to be safe :P
     const pendingGuesses = await this.prisma.guess.findMany({
       where: {
         status: GuessStatus.PENDING,
         createdAt: {
-          lte: oneMinuteAgo,
+          lte: oneMinuteAgo.toDate(),
         },
       },
       select: {
